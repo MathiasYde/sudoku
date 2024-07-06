@@ -1,9 +1,17 @@
 use yew::prelude::*;
-use yew_autoprops::autoprops;
+
+type Notes = u16;
+
+#[derive(Clone, Copy)]
+enum Cell {
+    Empty(Notes),
+    Value(u8),
+}
 
 #[function_component]
 fn Sudoku() -> Html {
     let selected_cell = use_state(|| None);
+    let board = use_state(|| [Cell::Empty(0b111111111); 81] );
 
     let on_cell_click = {
         let selected_cell = selected_cell.clone();
@@ -17,6 +25,8 @@ fn Sudoku() -> Html {
     html! {
         <div class="text-xl border border-gray-600 border-2 rounded grid grid-cols-9 grid-rows-9 gap-0" style="width: 27rem; height: 27rem;">
             {for (0..81).map(|index| {
+                let cell_value = &board[index as usize];
+
                 let on_cell_click = on_cell_click.clone();
                 let selected_cell = selected_cell.clone();
 
@@ -49,7 +59,21 @@ fn Sudoku() -> Html {
                 html! {
                     // Please allow me to write class={classes!("many classes in one string literal", cell_color)}
                     <button onclick={move |_| on_cell_click(index)} class={cell_color}>
-                        {index}
+                        {match cell_value {
+                            Cell::Empty(notes) => html! {
+                                <div class="text-xs grid grid-cols-3 grid-rows-3">
+                                    {for (0..9).map(|i| {
+                                        let is_set = notes & (1 << i) != 0;
+
+                                        match is_set {
+                                            true => html! { <p>{(i + 1).to_string()}</p> },
+                                            false => html! { <p>{" "}</p> },
+                                        }
+                                    })}
+                                </div>
+                            },
+                            Cell::Value(cell_value) => html! { <p>{cell_value.to_string()}</p> },
+                        }}
                     </button>
                 }
             })}
