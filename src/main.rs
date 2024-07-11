@@ -56,9 +56,20 @@ fn Sudoku() -> Html {
                     (_, false) => "bg-gray-100",
                 };
 
+                let border = {
+                    let row = index / 9;
+                    
+                    classes!(
+                        if index % 3 == 2 { "border-r-2" } else { "" },
+                        if index % 3 == 0 { "border-l-2" } else { "" },
+                        if row % 3 == 2 { "border-b-2" } else { "" },
+                        if row % 3 == 0 { "border-t-2" } else { "" },
+                    )
+                };
+
                 html! {
                     // Please allow me to write class={classes!("many classes in one string literal", cell_color)}
-                    <button onclick={move |_| on_cell_click(index)} class={cell_color}>
+                    <button onclick={move |_| on_cell_click(index)} class={classes!(cell_color, border)}>
                         {match cell_value {
                             Cell::Empty(notes) => html! {
                                 <div class="text-xs grid grid-cols-3 grid-rows-3">
